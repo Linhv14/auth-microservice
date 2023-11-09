@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { type Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UsersRepository {
@@ -10,42 +10,63 @@ export class UsersRepository {
   async create(data: Prisma.UserCreateInput) {
     console.log("UsersRepository:::::", data)
     const user = await this.prismaService.user.create({ data })
-    return user
+    return this._exclude(user, ['password'])
   }
 
   async update(where: Prisma.UserWhereUniqueInput, data: Prisma.UserUpdateInput) {
-    return await this.prismaService.user.update({ where, data })
+    const user = await this.prismaService.user.update({ where, data })
+    return this._exclude(user, ['password'])
   }
 
   async upsert(where: Prisma.UserWhereUniqueInput, update: Prisma.UserUpdateInput, create: Prisma.UserCreateInput) {
-    return await this.prismaService.user.upsert({ where, update, create })
+    const user = await this.prismaService.user.upsert({ where, update, create })
+    return this._exclude(user, ['password'])
   }
 
   async findUnique(where: Prisma.UserWhereUniqueInput) {
-    return await this.prismaService.user.findUnique({ where })
+    const user = await this.prismaService.user.findUnique({ where })
+    return user
   }
 
+  async findUniqueWithoutField(where: Prisma.UserWhereUniqueInput, field: string) {
+    const user = await this.prismaService.user.findUnique({ where })
+    return this._exclude(user, [field])
+  }
+
+
   async findAll() {
-    return await this.prismaService.user.findMany()
+    const user = await this.prismaService.user.findMany()
+    return this._exclude(user, ['password'])
   }
 
   async findMany(where: Prisma.UserWhereInput) {
-    return await this.prismaService.user.findMany({ where })
+    const user = await this.prismaService.user.findMany({ where })
+    return this._exclude(user, ['password'])
   }
 
   async findFirst(where: Prisma.UserWhereInput) {
-    return await this.prismaService.user.findFirst({ where })
+    const user = await this.prismaService.user.findFirst({ where })
+    return this._exclude(user, ['password'])
   }
 
   async delete(where: Prisma.UserWhereUniqueInput) {
-    return await this.prismaService.user.delete({ where })
+    const user = await this.prismaService.user.delete({ where })
+    return this._exclude(user, ['password'])
   }
 
   async deleteMany(where: Prisma.UserWhereInput) {
-    return await this.prismaService.user.deleteMany({ where })
+    const user = await this.prismaService.user.deleteMany({ where })
+    return this._exclude(user, ['password'])
   }
 
   async pagination(pages: { skip: number, take: number }) {
-    return await this.prismaService.user.findMany(pages)
+    const user = await this.prismaService.user.findMany(pages)
+    return this._exclude(user, ['password'])
+  }
+
+  private _exclude(user: any, keys: string[]) {
+    return Object.fromEntries(
+      Object.entries(user).filter(([key]) => !keys.includes(key))
+    );
   }
 }

@@ -12,24 +12,23 @@ export class AppService {
     private readonly usersRepository: UsersRepository,
   ) { }
 
-  async register(userDTO: CreateUserDTO): Promise<User | RpcException> {
-    this.logger.log("[Auth-Comsumer] Register:::::", userDTO)
-    const isExistedEmail = await this.isExistedByUnique({ email: userDTO.email })
+  async register(userDTO: CreateUserDTO) {
+    this.logger.log("[Auth-Comsumer] Register ....")
+    const isExistedEmail = await this._isExistedByUnique({ email: userDTO.email })
     if (isExistedEmail) {
       throw new RpcException('User already existed');
     }
 
-    userDTO.password = await this.hashPassword(userDTO.password)
+    userDTO.password = await this._hashPassword(userDTO.password)
 
     const user = await this.usersRepository.create(userDTO)
-    user.password = undefined
-    user.refreshToken = undefined
+
     return user
   }
 
-  async login(userDTO: LoginDTO): Promise<any> {
-    this.logger.log("[Auth-Comsumer] Login:::::", userDTO)
-    const user = await this.isExistedByUnique({ email: userDTO.email })
+  async login(userDTO: LoginDTO) {
+    this.logger.log("[Auth-Comsumer] Login ....")
+    const user = await this._isExistedByUnique({ email: userDTO.email })
     if (!user) throw new RpcException('User not found');
 
     const is_equal = await argon.verify(user.password, userDTO.password);
@@ -42,46 +41,38 @@ export class AppService {
   }
 
   async verify({ ID, refreshToken }: RefreshTokenDTO) {
-    const user = await this.usersRepository.findUnique({ ID: parseInt(ID) })
-    console.log(user)
+    this.logger.log("[Auth-Comsumer] Verify token ....")
+    const user = await this.usersRepository.findUniqueWithoutField({ ID: parseInt(ID) }, 'password')
+
     if (!user || !user.refreshToken)
       throw new RpcException('Access denied');
 
-    const refreshTokenMatches = await argon.verify(
-      refreshToken,
-      user.refreshToken
-    );
-    console.log(refreshTokenMatches)
-    user.password = undefined
-    user.refreshToken = undefined
     return {
       ...user,
-      refreshTokenMatches
+      refreshTokenMatches: refreshToken === user.refreshToken
     }
   }
 
   async updateToken({ ID, refreshToken }: RefreshTokenDTO) {
+    this.logger.log("[Auth-Comsumer] Update token ....")
     await this.usersRepository.update({ ID: parseInt(ID) }, { refreshToken })
   }
 
-  async isExistedByUnique(field: Prisma.UserWhereUniqueInput) {
+  private async _isExistedByUnique(field: Prisma.UserWhereUniqueInput) {
     return await this.usersRepository.findUnique(field)
   }
 
-  async validate(ID: number): Promise<any> {
-    this.logger.log("[Auth-Comsumer] Validate:::::", ID)
-    const user = await this.usersRepository.findUnique({ ID })
+  async validate(ID: number) {
+    this.logger.log("[Auth-Comsumer] Validate jwt ....")
+    const user = await this.usersRepository.findUniqueWithoutField({ ID }, 'password')
     if (!user) {
       throw new RpcException('Invalid token');
     }
 
-    user.password = undefined
-    user.refreshToken = undefined
     return user
   }
 
-
-  private async hashPassword(password: string) {
+  private async _hashPassword(password: string) {
     const hashedPassword = await argon.hash(password)
     return hashedPassword
   }

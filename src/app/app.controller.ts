@@ -3,8 +3,7 @@ import { Controller, ValidationPipe } from '@nestjs/common';
 import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 
 import { AppService } from './app.service';
-import { CreateUserDTO, LoginDTO, RefreshTokenDTO } from 'shared/auth.dto';
-import { User } from '@prisma/client';
+import { CreateUserDTO, LoginDTO, RefreshTokenDTO, UpdateTokenDTO } from 'shared/auth.dto';
 
 @Controller()
 export class AppController {
@@ -32,6 +31,12 @@ export class AppController {
 
   @EventPattern('auth.update-token')
   updateToken(@Payload(ValidationPipe) token: RefreshTokenDTO) {
+    return this.appService.updateToken(token);
+  }
+
+  @EventPattern('auth.logout')
+  logout(@Payload(ValidationPipe) token: UpdateTokenDTO) {
+    console.log(token)
     return this.appService.updateToken(token);
   }
 }
