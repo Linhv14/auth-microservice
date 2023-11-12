@@ -1,9 +1,8 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
 import { CreateUserDTO, LoginDTO, RefreshTokenDTO } from 'shared/auth.dto';
 import * as argon from 'argon2'
-import { Prisma, User } from '@prisma/client';
-import { RpcException } from '@nestjs/microservices';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class AppService {
@@ -16,7 +15,7 @@ export class AppService {
     this.logger.log("[Auth-Comsumer] Register ....")
     const isExistedEmail = await this._isExistedByUnique({ email: userDTO.email })
     if (isExistedEmail) {
-      throw new RpcException('User already existed');
+      return { error: 'User already existed' }
     }
 
     userDTO.password = await this._hashPassword(userDTO.password)
@@ -29,11 +28,11 @@ export class AppService {
   async login(userDTO: LoginDTO) {
     this.logger.log("[Auth-Comsumer] Login ....")
     const user = await this._isExistedByUnique({ email: userDTO.email })
-    if (!user) throw new RpcException('User not found');
+    if (!user) return { error: 'User not found' }
 
     const is_equal = await argon.verify(user.password, userDTO.password);
-    if (!is_equal) throw new RpcException('Invalid credentials');
-    if (user.status === "BLOCKED") throw new RpcException('Invalid credentials')
+    if (!is_equal) return { error: 'Invalid credentials' }
+    if (user.status === "BLOCKED") return { error: 'Invalid credentials' }
 
     user.password = undefined
     user.refreshToken = undefined
@@ -45,7 +44,7 @@ export class AppService {
     const user = await this.usersRepository.findUniqueWithoutField({ ID: parseInt(ID) }, 'password')
 
     if (!user || !user.refreshToken)
-      throw new RpcException('Access denied');
+      return { error: 'Access denied' };
 
     return {
       ...user,
@@ -66,7 +65,7 @@ export class AppService {
     this.logger.log("[Auth-Comsumer] Validate jwt ....")
     const user = await this.usersRepository.findUniqueWithoutField({ ID }, 'password')
     if (!user) {
-      throw new RpcException('Invalid token');
+      return { error: 'Invalid token' }
     }
 
     return user

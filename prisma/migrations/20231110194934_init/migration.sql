@@ -23,7 +23,7 @@ CREATE TABLE "Service" (
 -- CreateTable
 CREATE TABLE "User" (
     "ID" SERIAL NOT NULL,
-    "default_address" TEXT,
+    "defaultAddress" TEXT,
     "name" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "email" TEXT NOT NULL,

@@ -16,6 +16,7 @@ export class AppController {
 
   @MessagePattern('auth.login')
   login(@Payload(ValidationPipe) user: LoginDTO) {
+    console.log("AUTH:::loging..")
     return this.appService.login(user);
   }
 

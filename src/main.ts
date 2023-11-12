@@ -16,7 +16,6 @@ async function bootstrap() {
 
       options: {
         client: {
-          clientId: 'auth-microservice',
           brokers: ['localhost:9092'],
         },
         consumer: {

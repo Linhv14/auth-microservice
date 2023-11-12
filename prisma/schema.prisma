@@ -46,27 +46,27 @@ model Service {
 }
 
 model User {
-  ID                               Int                @id @default(autoincrement())
-  default_address                  String?
-  service                          UsersHasServices[]
-  order                            OrderHasUsers[]
-  name                             String
-  password                         String
-  email                            String             @unique
-  long                             Float?
-  lat                              Float?
-  phoneNumber                      String?            @unique
-  gender                           Gender             @default(MALE)
-  age                              Int?               @default(18)
-  avatar                           String?
-  role                             Role               @default(USER)
-  status                           Account_status     @default(ACTIVED)
-  workingMode                      Boolean?           @default(false)
-  post                             Post[]
-  review                           Review?
-  refreshToken                     String?
-  creatAt                          DateTime           @default(now())
-  updateAt                         DateTime           @default(now())
+  ID             Int                @id @default(autoincrement())
+  defaultAddress String?
+  service        UsersHasServices[]
+  order          OrderHasUsers[]
+  name           String
+  password       String
+  email          String             @unique
+  long           Float?
+  lat            Float?
+  phoneNumber    String?            @unique
+  gender         Gender             @default(MALE)
+  age            Int?               @default(18)
+  avatar         String?
+  role           Role               @default(USER)
+  status         Account_status     @default(ACTIVED)
+  workingMode    Boolean?           @default(false)
+  post           Post[]
+  review         Review?
+  refreshToken   String?
+  creatAt        DateTime           @default(now())
+  updateAt       DateTime           @default(now())
 }
 
 model UsersHasServices {
