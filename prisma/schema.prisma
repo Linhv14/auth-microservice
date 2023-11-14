@@ -12,27 +12,27 @@ datasource db {
 }
 
 enum Role {
-  USER
-  WORKER
-  ADMIN
+  user
+  worker
+  admin
 }
 
 enum Gender {
-  MALE
-  FEMALE
+  male
+  female
 }
 
 enum Order_status {
-  NONE
-  MATCHED
-  PROCESSING
-  DONE
-  CANCELLED
+  none
+  matched
+  processing
+  done
+  cancelled
 }
 
 enum Account_status {
-  ACTIVED
-  BLOCKED
+  actived
+  blocked
 }
 
 model Service {
@@ -50,17 +50,17 @@ model User {
   defaultAddress String?
   service        UsersHasServices[]
   order          OrderHasUsers[]
-  name           String
+  name           String?
   password       String
   email          String             @unique
   long           Float?
   lat            Float?
   phoneNumber    String?            @unique
-  gender         Gender             @default(MALE)
+  gender         Gender             @default(male)
   age            Int?               @default(18)
   avatar         String?
-  role           Role               @default(USER)
-  status         Account_status     @default(ACTIVED)
+  role           Role               @default(user)
+  status         Account_status     @default(actived)
   workingMode    Boolean?           @default(false)
   post           Post[]
   review         Review?
@@ -85,7 +85,7 @@ model Order {
   address   String
   service   Service         @relation(fields: [serviceID], references: [ID])
   serviceID Int             @unique
-  status    Order_status    @default(NONE)
+  status    Order_status    @default(none)
   amount    Float           @default(0)
   review    Review[]
   creatAt   DateTime        @default(now())

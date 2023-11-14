@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
-import { CreateUserDTO, LoginDTO, RefreshTokenDTO } from 'shared/auth.dto';
+import { AuthDTO, ChangePasswordDTO, UpdateTokenDTO } from 'src/shared/auth.dto';
 import * as argon from 'argon2'
 import { Prisma } from '@prisma/client';
 
@@ -11,7 +11,7 @@ export class AppService {
     private readonly usersRepository: UsersRepository,
   ) { }
 
-  async register(userDTO: CreateUserDTO) {
+  async register(userDTO: AuthDTO) {
     this.logger.log("[Auth-Comsumer] Register ....")
     const isExistedEmail = await this._isExistedByUnique({ email: userDTO.email })
     if (isExistedEmail) {
@@ -22,26 +22,25 @@ export class AppService {
 
     const user = await this.usersRepository.create(userDTO)
 
-    return user
+    const { password, refreshToken, ...safeFields } = user
+    return safeFields
   }
 
-  async login(userDTO: LoginDTO) {
+  async login(userDTO: AuthDTO) {
     this.logger.log("[Auth-Comsumer] Login ....")
     const user = await this._isExistedByUnique({ email: userDTO.email })
     if (!user) return { error: 'User not found' }
 
     const is_equal = await argon.verify(user.password, userDTO.password);
-    if (!is_equal) return { error: 'Invalid credentials' }
-    if (user.status === "BLOCKED") return { error: 'Invalid credentials' }
+    if (!is_equal || user.status === 'blocked') return { error: 'Invalid credentials' }
 
-    user.password = undefined
-    user.refreshToken = undefined
-    return user
+    const { password, refreshToken, ...safeFields } = user
+    return safeFields
   }
 
-  async verify({ ID, refreshToken }: RefreshTokenDTO) {
+  async verify({ ID, refreshToken }: UpdateTokenDTO) {
     this.logger.log("[Auth-Comsumer] Verify token ....")
-    const user = await this.usersRepository.findUniqueWithoutField({ ID: parseInt(ID) }, 'password')
+    const user = await this.usersRepository.findUniqueWithoutField({ ID }, 'password')
 
     if (!user || !user.refreshToken)
       return { error: 'Access denied' };
@@ -52,9 +51,9 @@ export class AppService {
     }
   }
 
-  async updateToken({ ID, refreshToken }: RefreshTokenDTO) {
+  async updateToken({ ID, refreshToken }: UpdateTokenDTO) {
     this.logger.log("[Auth-Comsumer] Update token ....")
-    await this.usersRepository.update({ ID: parseInt(ID) }, { refreshToken })
+    await this.usersRepository.update({ ID }, { refreshToken })
   }
 
   private async _isExistedByUnique(field: Prisma.UserWhereUniqueInput) {
@@ -71,7 +70,17 @@ export class AppService {
     return user
   }
 
-  private async _hashPassword(password: string) {
+  async changePassword(userDTO: ChangePasswordDTO) {
+    const user = await this.usersRepository.findUnique({ID: userDTO.ID})
+    const is_equal = await argon.verify(user.password, userDTO.oldPassword);
+    if (!is_equal) return {error: "Invalid credentials"}
+    const newPassword = await this._hashPassword(userDTO.newPassword)
+    const updatedUser = await this.usersRepository.update({ID: userDTO.ID}, {password: newPassword})
+    const {password, refreshToken, ...safeFields} = updatedUser
+    return safeFields
+  }
+
+  private async _hashPassword(password: string): Promise<string> {
     const hashedPassword = await argon.hash(password)
     return hashedPassword
   }

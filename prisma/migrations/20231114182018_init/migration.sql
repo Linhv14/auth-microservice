@@ -1,14 +1,14 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('USER', 'WORKER', 'ADMIN');
+CREATE TYPE "Role" AS ENUM ('user', 'worker', 'admin');
 
 -- CreateEnum
-CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE');
+CREATE TYPE "Gender" AS ENUM ('male', 'female');
 
 -- CreateEnum
-CREATE TYPE "Order_status" AS ENUM ('NONE', 'MATCHED', 'PROCESSING', 'DONE', 'CANCELLED');
+CREATE TYPE "Order_status" AS ENUM ('none', 'matched', 'processing', 'done', 'cancelled');
 
 -- CreateEnum
-CREATE TYPE "Account_status" AS ENUM ('ACTIVED', 'BLOCKED');
+CREATE TYPE "Account_status" AS ENUM ('actived', 'blocked');
 
 -- CreateTable
 CREATE TABLE "Service" (
@@ -24,17 +24,17 @@ CREATE TABLE "Service" (
 CREATE TABLE "User" (
     "ID" SERIAL NOT NULL,
     "defaultAddress" TEXT,
-    "name" TEXT NOT NULL,
+    "name" TEXT,
     "password" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "long" DOUBLE PRECISION,
     "lat" DOUBLE PRECISION,
     "phoneNumber" TEXT,
-    "gender" "Gender" NOT NULL DEFAULT 'MALE',
+    "gender" "Gender" NOT NULL DEFAULT 'male',
     "age" INTEGER DEFAULT 18,
     "avatar" TEXT,
-    "role" "Role" NOT NULL DEFAULT 'USER',
-    "status" "Account_status" NOT NULL DEFAULT 'ACTIVED',
+    "role" "Role" NOT NULL DEFAULT 'user',
+    "status" "Account_status" NOT NULL DEFAULT 'actived',
     "workingMode" BOOLEAN DEFAULT false,
     "refreshToken" TEXT,
     "creatAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -57,7 +57,7 @@ CREATE TABLE "Order" (
     "ID" SERIAL NOT NULL,
     "address" TEXT NOT NULL,
     "serviceID" INTEGER NOT NULL,
-    "status" "Order_status" NOT NULL DEFAULT 'NONE',
+    "status" "Order_status" NOT NULL DEFAULT 'none',
     "amount" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "creatAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updateAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
