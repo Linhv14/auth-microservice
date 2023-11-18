@@ -20,8 +20,8 @@ export class AppController {
   }
 
   @MessagePattern('auth.validate')
-  validate(@Payload(ValidationPipe) ID: string) {
-    return this.appService.validate(parseInt(ID));
+  validate(@Payload(ValidationPipe) { ID }: { ID: number }) {
+    return this.appService.validate(ID);
   }
 
   @MessagePattern('auth.verify')

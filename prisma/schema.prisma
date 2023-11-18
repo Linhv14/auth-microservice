@@ -36,80 +36,61 @@ enum Account_status {
 }
 
 model Service {
-  ID       Int                @id @default(autoincrement())
-  user     UsersHasServices[]
+  ID       Int      @id @default(autoincrement())
+  user     User[]
   name     String
-  order    Order?
-  post     Post?
-  creatAt  DateTime           @default(now())
-  updateAt DateTime           @default(now())
+  order    Order[]
+  post     Post[]
+  creatAt  DateTime @default(now())
+  updateAt DateTime @default(now())
 }
 
 model User {
-  ID             Int                @id @default(autoincrement())
+  ID             Int            @id @default(autoincrement())
   defaultAddress String?
-  service        UsersHasServices[]
-  order          OrderHasUsers[]
+  service        Service[]
+  order          Order[]
   name           String?
   password       String
-  email          String             @unique
+  email          String         @unique
   long           Float?
   lat            Float?
-  phoneNumber    String?            @unique
-  gender         Gender             @default(male)
-  age            Int?               @default(18)
+  phoneNumber    String?        @unique
+  gender         Gender         @default(male)
+  age            Int?           @default(18)
   avatar         String?
-  role           Role               @default(user)
-  status         Account_status     @default(actived)
-  workingMode    Boolean?           @default(false)
+  role           Role           @default(user)
+  status         Account_status @default(actived)
+  workingMode    Boolean?       @default(false)
   post           Post[]
   review         Review?
   refreshToken   String?
-  creatAt        DateTime           @default(now())
-  updateAt       DateTime           @default(now())
-}
-
-model UsersHasServices {
-  service    Service  @relation(fields: [serviceID], references: [ID])
-  serviceID  Int
-  user       User     @relation(fields: [userID], references: [ID])
-  userID     Int
-  assignedAt DateTime @default(now())
-
-  @@id([userID, serviceID])
+  creatAt        DateTime       @default(now())
+  updateAt       DateTime       @default(now())
 }
 
 model Order {
-  ID        Int             @id @default(autoincrement())
-  user      OrderHasUsers[]
+  ID        Int          @id @default(autoincrement())
+  user      User[]
   address   String
-  service   Service         @relation(fields: [serviceID], references: [ID])
-  serviceID Int             @unique
-  status    Order_status    @default(none)
-  amount    Float           @default(0)
+  service   Service      @relation(fields: [serviceID], references: [ID])
+  serviceID Int          @unique
+  status    Order_status @default(none)
+  amount    Float        @default(0)
   review    Review[]
-  creatAt   DateTime        @default(now())
-  updateAt  DateTime        @default(now())
-}
-
-model OrderHasUsers {
-  order   Order @relation(fields: [orderID], references: [ID])
-  orderID Int
-  user    User  @relation(fields: [userID], references: [ID])
-  userID  Int
-
-  assignedAt DateTime @default(now())
-
-  @@id([orderID, userID])
+  creatAt   DateTime     @default(now())
+  updateAt  DateTime     @default(now())
 }
 
 model Post {
-  id        Int     @id @default(autoincrement())
+  ID        Int     @id @default(autoincrement())
   user      User    @relation(fields: [userID], references: [ID])
-  userID    Int     @unique
-  address   String
+  userID    Int
+  address   String?
+  long      Float?
+  lat       Float?
   service   Service @relation(fields: [serviceID], references: [ID])
-  serviceID Int     @unique
+  serviceID Int
   content   String
 
   creatAt  DateTime @default(now())
@@ -117,7 +98,7 @@ model Post {
 }
 
 model Review {
-  id       Int      @id @default(autoincrement())
+  ID       Int      @id @default(autoincrement())
   user     User     @relation(fields: [userID], references: [ID])
   userID   Int      @unique
   order    Order    @relation(fields: [orderID], references: [ID])
