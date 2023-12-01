@@ -104,6 +104,7 @@ model Review {
   order    Order    @relation(fields: [orderID], references: [ID])
   orderID  Int      @unique
   content  String
+  star     Float
   creatAt  DateTime @default(now())
   updateAt DateTime @updatedAt
 }
