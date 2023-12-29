@@ -41,7 +41,6 @@ export class AppController {
 
   @EventPattern('auth.logout')
   logout(@Payload(ValidationPipe) token: UpdateTokenDTO) {
-    console.log(token)
     return this.appService.updateToken(token);
   }
 }

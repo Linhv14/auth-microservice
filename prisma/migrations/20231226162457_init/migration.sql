@@ -33,7 +33,7 @@ CREATE TABLE "User" (
     "gender" "Gender" NOT NULL DEFAULT 'male',
     "age" INTEGER DEFAULT 18,
     "avatar" TEXT,
-    "role" "Role" NOT NULL DEFAULT 'user',
+    "role" "Role" NOT NULL DEFAULT 'admin',
     "status" "Account_status" NOT NULL DEFAULT 'actived',
     "workingMode" BOOLEAN DEFAULT false,
     "refreshToken" TEXT,
@@ -77,6 +77,7 @@ CREATE TABLE "Review" (
     "userID" INTEGER NOT NULL,
     "orderID" INTEGER NOT NULL,
     "content" TEXT NOT NULL,
+    "star" DOUBLE PRECISION NOT NULL,
     "creatAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updateAt" TIMESTAMP(3) NOT NULL,
 

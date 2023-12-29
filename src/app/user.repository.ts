@@ -7,7 +7,6 @@ export class UserRepository {
   constructor(private readonly prismaService: PrismaService) { }
 
   async create(data: Prisma.UserCreateInput) {
-    console.log("UsersRepository:::::", data)
     const user = await this.prismaService.user.create({ data })
     return this._exclude(user, ['password'])
   }
